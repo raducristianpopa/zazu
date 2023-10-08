@@ -13,6 +13,7 @@
 	"categories": [
 		"Other"
 	],
+	"icon": "media/zazu.png",
 	"activationEvents": [],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -55,6 +56,7 @@
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "18.x",
 		"@types/vscode": "^1.83.0",
+		"@types/vscode-webview": "^1.57.2",
 		"@typescript-eslint/eslint-plugin": "^6.7.3",
 		"@typescript-eslint/parser": "^6.7.3",
 		"concurrently": "^8.2.1",
@@ -67,5 +69,8 @@
 		"tsx": "^3.13.0",
 		"typescript": "^5.2.2",
 		"vite": "^4.4.11"
+	},
+	"dependencies": {
+		"@vscode/webview-ui-toolkit": "^1.2.2"
 	}
 }

@@ -33,6 +33,7 @@ async function run() {
 			rollupOptions: {
 				input: views,
 				output: {
+					format: 'cjs',
 					entryFileNames: `[name].js`,
 					chunkFileNames: `[name].js`,
 					assetFileNames: `[name].[ext]`
