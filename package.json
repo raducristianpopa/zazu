@@ -2,7 +2,11 @@
 	"name": "zazu",
 	"displayName": "zazu",
 	"description": "zazu",
+	"publisher": "rcp",
 	"version": "0.0.1",
+	"imports": {
+		"#*": "./src/*"
+	},
 	"engines": {
 		"vscode": "^1.83.0"
 	},
@@ -17,24 +21,43 @@
 				"command": "zazu.helloWorld",
 				"title": "Hello World"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "zazu-sidebar",
+					"title": "Zazu",
+					"icon": "media/logo.svg"
+				}
+			]
+		},
+		"views": {
+			"zazu-sidebar": [
+				{
+					"type": "webview",
+					"id": "zazu-sidebar-view",
+					"name": "Zazu",
+					"icon": "media/logo.svg",
+					"contextualTitle": "Zazu"
+				}
+			]
+		}
 	},
 	"scripts": {
-		"watch": "tsx ./scripts/build.ts",
-		"build": "tsx ./scripts/build.ts",
-		"vscode:prepublish": "npm run build",
-		"compile": "webpack",
-		"dev": "npm run -S esbuild-base -- --sourcemap --watch",
-		"package": "webpack --mode production --devtool hidden-source-map",
-		"compile-tests": "tsc -p . --outDir out",
+		"build:extension": "tsx ./scripts/build-extension.ts",
+		"build:views": "tsx ./scripts/build-views.ts",
+		"vscode:prepublish": "npm run compile",
+		"compile": "concurrently -n 'EXT,WVS' -c green.bold,red.bold \"npm run build:extension\" \"npm run build:views\"",
 		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^2.4.6",
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "18.x",
 		"@types/vscode": "^1.83.0",
 		"@typescript-eslint/eslint-plugin": "^6.7.3",
 		"@typescript-eslint/parser": "^6.7.3",
+		"concurrently": "^8.2.1",
 		"esbuild": "^0.19.4",
 		"eslint": "^8.50.0",
 		"svelte": "^4.2.1",
@@ -42,9 +65,7 @@
 		"svelte-preprocess": "^5.0.4",
 		"tslib": "^2.6.2",
 		"tsx": "^3.13.0",
-		"typescript": "^5.2.2"
-	},
-	"dependencies": {
-		"@interledger/open-payments": "^3.2.0"
+		"typescript": "^5.2.2",
+		"vite": "^4.4.11"
 	}
 }

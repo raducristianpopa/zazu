@@ -1,7 +1,9 @@
 import { build } from 'esbuild';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const extensionPath = join(__dirname, '..', 'src', 'extension.ts');
+const _dirname = dirname(fileURLToPath(import.meta.url));
+const extensionPath = join(_dirname, '..', 'src', 'extension.ts');
 
 async function buildExtension() {
 	const prompt = 'Building extension';
