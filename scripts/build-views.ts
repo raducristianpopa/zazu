@@ -1,37 +1,20 @@
 import { build } from 'vite';
-import sveltePreprocess from 'svelte-preprocess';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
+import react from '@vitejs/plugin-react-swc';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const views = fs
-	.readdirSync(path.join(dirname, '..', 'src/webviews', 'pages'))
-	.map((input) => path.join(dirname, '..', 'src/webviews', 'pages', input));
+const main = path.join(dirname, '..', 'src/webview', 'main.tsx');
 
 async function run() {
-	// "vite-plugin-svelte" CJS build was removed.
-	// https://github.com/sveltejs/vite-plugin-svelte/issues/487#issuecomment-1322330832
-	const { svelte } = await import('@sveltejs/vite-plugin-svelte');
-
 	await build({
-		plugins: [
-			svelte({
-				preprocess: sveltePreprocess(),
-				emitCss: true,
-				compilerOptions: {
-					cssHash: ({ hash, css }) => `z${hash(css)}`
-				}
-			})
-		],
+		plugins: [react()],
 		build: {
 			outDir: './dist/webviews',
-			watch: {
-				include: 'src/webview/**/*'
-			},
 			rollupOptions: {
-				input: views,
+				input: main,
 				output: {
 					format: 'cjs',
 					entryFileNames: `[name].js`,
@@ -42,12 +25,7 @@ async function run() {
 		},
 		css: {
 			postcss: {
-				plugins: []
-			}
-		},
-		server: {
-			watch: {
-				usePolling: true
+				plugins: [tailwindcss, autoprefixer]
 			}
 		}
 	});

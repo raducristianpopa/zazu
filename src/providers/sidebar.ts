@@ -1,15 +1,14 @@
 import * as vscode from 'vscode';
 import { nonce, uri } from '#utils';
+import { ExtensionMessage, WebviewMessage } from '#types';
 import { StateManager } from '#state/state-manager';
-import { ActionManager } from '#action/action-manager';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'zazu-sidebar-view';
 
 	constructor(
 		private readonly extensionUri: vscode.Uri,
-		private state: StateManager,
-		private actions: ActionManager
+		private state: StateManager
 	) {}
 
 	public resolveWebviewView(
@@ -36,12 +35,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 		const scriptUri = uri(webview, extensionUri, [
 			'dist',
 			'webviews',
-			'sidebar.js'
+			'main.js'
 		]);
 		const stylesUri = uri(webview, extensionUri, [
 			'dist',
 			'webviews',
-			'sidebar.css'
+			'main.css'
 		]);
 		const n = nonce();
 
@@ -60,31 +59,24 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             </html>`;
 	}
 
-	private setWebviewMessageListener(webviewView: vscode.WebviewView) {
-		webviewView.webview.onDidReceiveMessage(async (message: any) => {
-			const command = message.command;
+	private postMessage(webview: vscode.Webview, message: ExtensionMessage) {
+		webview.postMessage(message);
+	}
 
-			switch (command) {
-				case 'test': {
-					this.actions.paymentPointer.add(
-						'https://test.com',
-						'keyId'
-					);
-					const secrets = await this.actions.paymentPointer.get(
-						'https://test.com'
-					);
-					console.log(secrets);
-					webviewView.webview.postMessage(secrets);
-					break;
-				}
-				case 'get': {
-					const secrets = await this.actions.paymentPointer.get(
-						'https://test.com'
-					);
-					webviewView.webview.postMessage(secrets);
-					break;
+	private setWebviewMessageListener(webviewView: vscode.WebviewView) {
+		webviewView.webview.onDidReceiveMessage(
+			async (message: WebviewMessage) => {
+				switch (message.action) {
+					case 'PAYMENT_POINTER_LIST':
+						const paymentPointers =
+							this.state.paymentPointer.list();
+						this.postMessage(webviewView.webview, {
+							action: 'PAYMENT_POINTER_LIST',
+							payload: paymentPointers
+						});
+						break;
 				}
 			}
-		});
+		);
 	}
 }

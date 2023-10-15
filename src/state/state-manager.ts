@@ -1,30 +1,33 @@
-import * as vscode from 'vscode';
+import { Memento } from 'vscode';
 import { PaymentPointerStateManager } from './payment-pointer';
+import { PaymentPointer } from '#types';
 
 interface State {
-	paymentPointers: string[];
+	paymentPointers: PaymentPointer[];
 }
 
 export class StateManager {
 	public paymentPointer: PaymentPointerStateManager;
-	constructor(private memento: vscode.Memento) {
+	constructor(private memento: Memento) {
 		this.paymentPointer = new PaymentPointerStateManager(memento);
 	}
 
-	get<TKey extends keyof State, TValue extends State[TKey]>(
+	protected get<TKey extends keyof State, TValue extends State[TKey]>(
 		key: TKey
 	): TValue | undefined {
 		return this.memento.get<TValue>(key);
 	}
 
-	set<TKey extends keyof State>(
+	protected set<TKey extends keyof State>(
 		key: TKey,
 		value: State[TKey]
 	): void | Thenable<void> {
 		this.memento.update(key, value);
 	}
 
-	delete<TKey extends keyof State>(key: TKey): void | Thenable<void> {
+	protected delete<TKey extends keyof State>(
+		key: TKey
+	): void | Thenable<void> {
 		this.memento.update(key, undefined);
 	}
 }

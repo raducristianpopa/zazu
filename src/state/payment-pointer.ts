@@ -1,23 +1,22 @@
+import { PaymentPointer } from '#types';
 import { Memento } from 'vscode';
 
-export type PaymentPointer = `https://${string}` | `http://${string}`;
-
-export interface PaymentPointerInfo {
-	id: string;
-	authServer: string;
-	assetCode: string;
-	assetScale: number;
-	publicName: string | undefined;
-}
-
 export class PaymentPointerStateManager {
+	private readonly stateKey: string = 'payment-pointers';
 	constructor(private memento: Memento) {}
 
-	get<TKey extends PaymentPointer>(key: TKey): string | undefined {
-		return this.memento.get<string>(key);
+	list(): PaymentPointer[] {
+		return this.memento.get<PaymentPointer[]>(this.stateKey) ?? [];
 	}
 
-	set<TKey extends PaymentPointer, TValue extends PaymentPointerInfo>(
+	find(id: string): PaymentPointer | undefined {
+		const paymentPointers = this.list();
+		return paymentPointers.find((paymentPointer) => {
+			paymentPointer.id === id;
+		});
+	}
+
+	set<TKey extends string, TValue extends PaymentPointer>(
 		key: TKey,
 		value: TValue
 	): void | Thenable<void> {
