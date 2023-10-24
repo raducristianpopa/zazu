@@ -1,19 +1,19 @@
 {
-	"compilerOptions": {
-		"jsx": "react-jsx",
-		"module": "ES2022",
-		"target": "ES2022",
-		"lib": ["ES6", "DOM"],
-		"sourceMap": true,
-		"esModuleInterop": true,
-		"strict": true,
-		"paths": {
-			"#*": ["./src/*"]
-		},
-		"moduleResolution": "bundler" /* enable all strict type-checking options */
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
-	}
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "module": "ES2022",
+        "target": "ES2022",
+        "lib": ["ES6", "DOM"],
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "paths": {
+            "#*": ["./src/*"]
+        },
+        "moduleResolution": "bundler" /* enable all strict type-checking options */
+        /* Additional Checks */
+        // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+        // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+        // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+    }
 }

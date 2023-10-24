@@ -1,99 +1,103 @@
 {
-	"name": "zazu",
-	"displayName": "zazu",
-	"description": "zazu",
-	"publisher": "rcp",
-	"version": "0.0.1",
-	"imports": {
-		"#*": "./src/*"
-	},
-	"engines": {
-		"vscode": "^1.83.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/raducristianpopa/zazu.git"
-	},
-	"icon": "media/zazu.png",
-	"activationEvents": [],
-	"main": "./dist/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "zazu.helloWorld",
-				"title": "Hello World"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "zazu-sidebar",
-					"title": "Zazu",
-					"icon": "media/logo.svg"
-				}
-			]
-		},
-		"views": {
-			"zazu-sidebar": [
-				{
-					"type": "webview",
-					"id": "zazu-sidebar-view",
-					"name": "Zazu",
-					"icon": "media/logo.svg",
-					"contextualTitle": "Zazu"
-				}
-			]
-		}
-	},
-	"scripts": {
-		"build:extension": "tsx ./scripts/build-extension.ts",
-		"build:views": "tsx ./scripts/build-views.ts",
-		"vscode:prepublish": "npm run compile",
-		"compile": "concurrently -n 'EXT,WVS' -c green.bold,red.bold \"npm run build:extension\" \"npm run build:views\"",
-		"lint": "eslint src --ext ts"
-	},
-	"devDependencies": {
-		"@types/node": "18.x",
-		"@types/react": "^18.2.28",
-		"@types/react-dom": "^18.2.13",
-		"@types/vscode": "^1.83.0",
-		"@types/vscode-webview": "^1.57.2",
-		"@typescript-eslint/eslint-plugin": "^6.7.3",
-		"@typescript-eslint/parser": "^6.7.3",
-		"@vitejs/plugin-react-swc": "^3.4.0",
-		"autoprefixer": "^10.4.16",
-		"concurrently": "^8.2.1",
-		"esbuild": "^0.19.4",
-		"eslint": "^8.50.0",
-		"postcss": "^8.4.31",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"tailwindcss": "^3.3.3",
-		"tslib": "^2.6.2",
-		"tsx": "^3.13.0",
-		"typescript": "^5.2.2",
-		"vite": "^4.4.11"
-	},
-	"dependencies": {
-		"@hookform/resolvers": "^3.3.2",
-		"@interledger/open-payments": "^3.2.0",
-		"@radix-ui/react-accordion": "^1.1.2",
-		"@radix-ui/react-label": "^2.0.2",
-		"@radix-ui/react-scroll-area": "^1.0.5",
-		"@radix-ui/react-separator": "^1.0.3",
-		"@radix-ui/react-slot": "^1.0.2",
-		"@radix-ui/react-tabs": "^1.0.4",
-		"@radix-ui/react-tooltip": "^1.0.7",
-		"@vscode/webview-ui-toolkit": "^1.2.2",
-		"class-variance-authority": "^0.7.0",
-		"clsx": "^2.0.0",
-		"react-hook-form": "^7.47.0",
-		"react-router-dom": "^6.16.0",
-		"tailwind-merge": "^1.14.0",
-		"valtio": "^1.11.2",
-		"zod": "^3.22.4"
-	}
+    "name": "zazu",
+    "displayName": "zazu",
+    "description": "zazu",
+    "publisher": "rcp",
+    "version": "0.0.1",
+    "imports": {
+        "#*": "./src/*"
+    },
+    "engines": {
+        "vscode": "^1.83.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/raducristianpopa/zazu.git"
+    },
+    "icon": "media/zazu.png",
+    "activationEvents": [],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "zazu.helloWorld",
+                "title": "Hello World"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "zazu-sidebar",
+                    "title": "Zazu",
+                    "icon": "media/logo.svg"
+                }
+            ]
+        },
+        "views": {
+            "zazu-sidebar": [
+                {
+                    "type": "webview",
+                    "id": "zazu-sidebar-view",
+                    "name": "Zazu",
+                    "icon": "media/logo.svg",
+                    "contextualTitle": "Zazu"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "build:extension": "tsx ./scripts/build-extension.ts",
+        "build:views": "tsx ./scripts/build-views.ts",
+        "vscode:prepublish": "npm run compile",
+        "compile": "concurrently -n 'EXT,WVS' -c green.bold,red.bold \"npm run build:extension\" \"npm run build:views\"",
+        "lint": "eslint src --ext ts",
+        "format": "prettier . --check --cache --cache-location='node_modules/.cache/prettiercache'",
+        "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/prettiercache' --log-level=warn"
+    },
+    "devDependencies": {
+        "@types/node": "18.x",
+        "@types/react": "^18.2.28",
+        "@types/react-dom": "^18.2.13",
+        "@types/vscode": "^1.83.0",
+        "@types/vscode-webview": "^1.57.2",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "@typescript-eslint/parser": "^6.7.3",
+        "@vitejs/plugin-react-swc": "^3.4.0",
+        "autoprefixer": "^10.4.16",
+        "concurrently": "^8.2.1",
+        "esbuild": "^0.19.4",
+        "eslint": "^8.50.0",
+        "postcss": "^8.4.31",
+        "prettier": "^3.0.3",
+        "prettier-plugin-tailwindcss": "^0.5.6",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "tailwindcss": "^3.3.3",
+        "tslib": "^2.6.2",
+        "tsx": "^3.13.0",
+        "typescript": "^5.2.2",
+        "vite": "^4.4.11"
+    },
+    "dependencies": {
+        "@hookform/resolvers": "^3.3.2",
+        "@interledger/open-payments": "^3.2.0",
+        "@radix-ui/react-accordion": "^1.1.2",
+        "@radix-ui/react-label": "^2.0.2",
+        "@radix-ui/react-scroll-area": "^1.0.5",
+        "@radix-ui/react-separator": "^1.0.3",
+        "@radix-ui/react-slot": "^1.0.2",
+        "@radix-ui/react-tabs": "^1.0.4",
+        "@radix-ui/react-tooltip": "^1.0.7",
+        "@vscode/webview-ui-toolkit": "^1.2.2",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.0.0",
+        "react-hook-form": "^7.47.0",
+        "react-router-dom": "^6.16.0",
+        "tailwind-merge": "^1.14.0",
+        "valtio": "^1.11.2",
+        "zod": "^3.22.4"
+    }
 }
