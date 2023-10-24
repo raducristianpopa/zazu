@@ -9,34 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '#webview/ui/tabs';
 import { PaymentPointers } from './payment-pointers';
 import { messageHandler } from '#webview/lib/messages';
 
-function Wrapper() {
+const Wrapper = () => {
 	useEventListener('message', messageHandler);
 
-	return (
-		<>
-			<Outlet />
-			<div className="fixed top-0 right-0 m-8 p-3 text-xs font-mono text-white h-6 w-6 rounded-full flex items-center justify-center bg-gray-700 sm:bg-pink-500 md:bg-orange-500 lg:bg-green-500 xl:bg-blue-500">
-				<div className="block  sm:hidden md:hidden lg:hidden xl:hidden">
-					al
-				</div>
-				<div className="hidden sm:block  md:hidden lg:hidden xl:hidden">
-					sm
-				</div>
-				<div className="hidden sm:hidden md:block lg:hidden xl:hidden">
-					md
-				</div>
-				<div className="hidden sm:hidden md:hidden lg:block  xl:hidden">
-					lg
-				</div>
-				<div className="hidden sm:hidden md:hidden lg:hidden xl:block">
-					xl
-				</div>
-			</div>
-		</>
-	);
-}
+	return <Outlet />;
+};
 
-function Index() {
+const Index = () => {
 	return (
 		<Tabs defaultValue="payment-pointers">
 			<TabsList className="grid w-full grid-cols-2">
@@ -48,10 +27,10 @@ function Index() {
 			<TabsContent value="payment-pointers">
 				<PaymentPointers />
 			</TabsContent>
-			<TabsContent value="payments">Payments</TabsContent>
+			<TabsContent value="payments">Coming soon...</TabsContent>
 		</Tabs>
 	);
-}
+};
 
 export const routes = [
 	{
@@ -67,6 +46,6 @@ export const routes = [
 
 const router = createMemoryRouter(routes);
 
-export function App() {
+export const App = () => {
 	return <RouterProvider router={router} />;
-}
+};

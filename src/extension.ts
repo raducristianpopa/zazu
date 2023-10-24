@@ -1,10 +1,14 @@
 import { SidebarProvider } from '#providers/sidebar';
-import { StateManager } from '#state/state-manager';
+import { StateManager } from '#managers/state-manager';
 import { ExtensionContext, window, commands } from 'vscode';
 
 export async function activate(context: ExtensionContext) {
 	const state = new StateManager(context.globalState);
-	const sidebar = new SidebarProvider(context.extensionUri, state);
+	const sidebar = new SidebarProvider({
+		extensionUri: context.extensionUri,
+		secretStorage: context.secrets,
+		state
+	});
 
 	context.subscriptions.push(
 		window.registerWebviewViewProvider(SidebarProvider.viewType, sidebar)

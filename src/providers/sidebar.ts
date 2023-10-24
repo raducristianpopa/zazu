@@ -1,25 +1,46 @@
-import * as vscode from 'vscode';
 import { nonce, uri } from '#utils';
 import { ExtensionMessage, WebviewMessage } from '#types';
-import { StateManager } from '#state/state-manager';
+import { StateManager } from '#managers/state-manager';
+import {
+	CancellationToken,
+	SecretStorage,
+	Uri,
+	Webview,
+	WebviewView,
+	WebviewViewProvider,
+	WebviewViewResolveContext,
+	window
+} from 'vscode';
+import { createUnauthenticatedClient } from '@interledger/open-payments';
 
-export class SidebarProvider implements vscode.WebviewViewProvider {
+interface SidebarProviderDeps {
+	extensionUri: Uri;
+	secretStorage: SecretStorage;
+	state: StateManager;
+}
+
+export class SidebarProvider implements WebviewViewProvider {
 	public static readonly viewType = 'zazu-sidebar-view';
 
-	constructor(
-		private readonly extensionUri: vscode.Uri,
-		private state: StateManager
-	) {}
+	private readonly extensionUri: Uri;
+	private secretStorage: SecretStorage;
+	private state: StateManager;
+
+	constructor(deps: SidebarProviderDeps) {
+		this.extensionUri = deps.extensionUri;
+		this.secretStorage = deps.secretStorage;
+		this.state = deps.state;
+	}
 
 	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		_context: vscode.WebviewViewResolveContext<unknown>,
-		_token: vscode.CancellationToken
+		webviewView: WebviewView,
+		_context: WebviewViewResolveContext<unknown>,
+		_token: CancellationToken
 	): void | Thenable<void> {
 		webviewView.webview.options = {
 			enableScripts: true,
 			enableForms: true,
-			localResourceRoots: [vscode.Uri.joinPath(this.extensionUri, 'dist')]
+			localResourceRoots: [Uri.joinPath(this.extensionUri, 'dist')]
 		};
 		webviewView.webview.html = this.getWebviewContent(
 			webviewView.webview,
@@ -28,10 +49,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 		this.setWebviewMessageListener(webviewView);
 	}
 
-	private getWebviewContent(
-		webview: vscode.Webview,
-		extensionUri: vscode.Uri
-	) {
+	private getWebviewContent(webview: Webview, extensionUri: Uri) {
 		const scriptUri = uri(webview, extensionUri, [
 			'dist',
 			'webviews',
@@ -59,11 +77,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             </html>`;
 	}
 
-	private postMessage(webview: vscode.Webview, message: ExtensionMessage) {
+	private postMessage(webview: Webview, message: ExtensionMessage) {
 		webview.postMessage(message);
 	}
 
-	private setWebviewMessageListener(webviewView: vscode.WebviewView) {
+	private setWebviewMessageListener(webviewView: WebviewView) {
 		webviewView.webview.onDidReceiveMessage(
 			async (message: WebviewMessage) => {
 				switch (message.action) {
@@ -74,6 +92,35 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 							action: 'PAYMENT_POINTER_LIST',
 							payload: paymentPointers
 						});
+						break;
+					case 'PAYMENT_POINTER_ADD':
+						const client = await createUnauthenticatedClient({});
+						const paymentPointer = await client.paymentPointer
+							.get({
+								url: message.payload.paymentPointer
+							})
+							.catch(() => {
+								throw new Error(
+									'Could not fetch payment pointer information'
+								);
+							});
+						const pps =
+							this.state.paymentPointer.set(paymentPointer);
+						this.secretStorage.store(
+							paymentPointer.id,
+							JSON.stringify({
+								paymentPointer: paymentPointer.id,
+								keyId: message.payload.keyId,
+								privateKey: message.payload.privateKey
+							})
+						);
+						this.postMessage(webviewView.webview, {
+							action: 'PAYMENT_POINTER_LIST',
+							payload: pps
+						});
+						window.showInformationMessage(
+							`Payment pointer "${paymentPointer.id}" was added.`
+						);
 						break;
 				}
 			}

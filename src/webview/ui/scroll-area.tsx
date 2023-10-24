@@ -2,7 +2,7 @@ import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 import { cn } from '#webview/lib/utils';
 import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react';
 
-const ScrollArea = forwardRef<
+export const ScrollArea = forwardRef<
 	ElementRef<typeof ScrollAreaPrimitive.Root>,
 	ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, children, ...props }, ref) => (
@@ -20,7 +20,7 @@ const ScrollArea = forwardRef<
 ));
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName;
 
-const ScrollBar = forwardRef<
+export const ScrollBar = forwardRef<
 	ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
 	ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
 >(({ className, orientation = 'vertical', ...props }, ref) => (
@@ -46,5 +46,3 @@ const ScrollBar = forwardRef<
 	</ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName;
-
-export { ScrollArea, ScrollBar };

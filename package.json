@@ -13,6 +13,10 @@
 	"categories": [
 		"Other"
 	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/raducristianpopa/zazu.git"
+	},
 	"icon": "media/zazu.png",
 	"activationEvents": [],
 	"main": "./dist/extension.js",
@@ -74,16 +78,22 @@
 		"vite": "^4.4.11"
 	},
 	"dependencies": {
+		"@hookform/resolvers": "^3.3.2",
 		"@interledger/open-payments": "^3.2.0",
 		"@radix-ui/react-accordion": "^1.1.2",
+		"@radix-ui/react-label": "^2.0.2",
 		"@radix-ui/react-scroll-area": "^1.0.5",
+		"@radix-ui/react-separator": "^1.0.3",
 		"@radix-ui/react-slot": "^1.0.2",
 		"@radix-ui/react-tabs": "^1.0.4",
+		"@radix-ui/react-tooltip": "^1.0.7",
 		"@vscode/webview-ui-toolkit": "^1.2.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.0.0",
+		"react-hook-form": "^7.47.0",
 		"react-router-dom": "^6.16.0",
 		"tailwind-merge": "^1.14.0",
-		"valtio": "^1.11.2"
+		"valtio": "^1.11.2",
+		"zod": "^3.22.4"
 	}
 }
