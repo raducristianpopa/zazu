@@ -1,10 +1,10 @@
 import { Uri, Webview } from "vscode";
 
-export function uri(webview: Webview, extensionUri: Uri, pathList: string[]) {
+export function uri(webview: Webview, extensionUri: Uri, pathList: string[]): Uri {
     return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
 }
 
-export function nonce() {
+export function nonce(): string {
     let text = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 32; i++) {

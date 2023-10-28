@@ -1,7 +1,8 @@
 import { nonce, uri } from "#utils";
 import { ExtensionMessage, WebviewMessage } from "#types";
-import { StateManager } from "#managers/state-manager";
 import {
+    env,
+    commands,
     CancellationToken,
     SecretStorage,
     Uri,
@@ -11,25 +12,25 @@ import {
     WebviewViewResolveContext,
     window,
 } from "vscode";
-import { createUnauthenticatedClient } from "@interledger/open-payments";
+import { PaymentPointerManager } from "#managers/payment-pointer";
 
 interface SidebarProviderDeps {
     extensionUri: Uri;
+    paymentPointerManager: PaymentPointerManager;
     secretStorage: SecretStorage;
-    state: StateManager;
 }
 
 export class SidebarProvider implements WebviewViewProvider {
     public static readonly viewType = "zazu-sidebar-view";
 
     private readonly extensionUri: Uri;
+    private paymentPointerManager: PaymentPointerManager;
     private secretStorage: SecretStorage;
-    private state: StateManager;
 
     constructor(deps: SidebarProviderDeps) {
         this.extensionUri = deps.extensionUri;
+        this.paymentPointerManager = deps.paymentPointerManager;
         this.secretStorage = deps.secretStorage;
-        this.state = deps.state;
     }
 
     public resolveWebviewView(
@@ -74,35 +75,39 @@ export class SidebarProvider implements WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
             switch (message.action) {
                 case "PAYMENT_POINTER_LIST":
-                    const paymentPointers = this.state.paymentPointer.list();
                     this.postMessage(webviewView.webview, {
                         action: "PAYMENT_POINTER_LIST",
-                        payload: paymentPointers,
+                        payload: this.paymentPointerManager.list(),
                     });
                     break;
                 case "PAYMENT_POINTER_ADD":
-                    const client = await createUnauthenticatedClient({});
-                    const paymentPointer = await client.paymentPointer
-                        .get({
-                            url: message.payload.paymentPointer,
-                        })
-                        .catch(() => {
-                            throw new Error("Could not fetch payment pointer information");
-                        });
-                    const pps = this.state.paymentPointer.set(paymentPointer);
-                    this.secretStorage.store(
-                        paymentPointer.id,
-                        JSON.stringify({
-                            paymentPointer: paymentPointer.id,
-                            keyId: message.payload.keyId,
-                            privateKey: message.payload.privateKey,
-                        }),
+                    const payload = await this.paymentPointerManager.set(message.payload);
+                    this.postMessage(webviewView.webview, {
+                        action: "PAYMENT_POINTER_LIST",
+                        payload,
+                    });
+                    window.showInformationMessage(`Payment pointer "${message.payload.paymentPointer}" was added.`);
+                    break;
+                case "REQUEST_GRANT":
+                    const grant = await this.paymentPointerManager.grant(message.payload.paymentPointer);
+                    env.openExternal(Uri.parse(grant.interact.redirect));
+                    this.postMessage(webviewView.webview, {
+                        action: "PAYMENT_POINTER_LIST",
+                        payload: this.paymentPointerManager.list(),
+                    });
+                    break;
+                case "CONTINUE_GRANT":
+                    await this.paymentPointerManager.continue(
+                        message.payload.paymentPointer,
+                        message.payload.interactRef,
                     );
                     this.postMessage(webviewView.webview, {
                         action: "PAYMENT_POINTER_LIST",
-                        payload: pps,
+                        payload: this.paymentPointerManager.list(),
                     });
-                    window.showInformationMessage(`Payment pointer "${paymentPointer.id}" was added.`);
+                    break;
+                case "SEND":
+                    await this.paymentPointerManager.send();
                     break;
             }
         });

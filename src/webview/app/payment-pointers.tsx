@@ -1,7 +1,7 @@
 import { PaymentPointerStatus } from "#types";
 import { usePaymentPointers } from "#webview/lib/hooks/use-payment-pointers";
 import { useZodForm } from "#webview/lib/hooks/use-zod-form";
-import { addPaymentPointer } from "#webview/lib/messages";
+import { addPaymentPointer, continueGrant, requestGrant, send } from "#webview/lib/messages";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "#webview/ui/accordion";
 import { Badge } from "#webview/ui/badge";
 import { Button } from "#webview/ui/button";
@@ -10,6 +10,7 @@ import * as Icons from "#webview/ui/icons";
 import { Input } from "#webview/ui/input";
 import { ScrollArea } from "#webview/ui/scroll-area";
 import { Separator } from "#webview/ui/separator";
+import { Textarea } from "#webview/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "#webview/ui/tooltip";
 import { z } from "zod";
 
@@ -52,12 +53,15 @@ export const PaymentPointers = () => {
                                         <p className="font-semibold">Asset scale:</p>
                                         <p>{paymentPointer.assetScale}</p>
                                     </div>
-                                    <div className="mt-4 flex items-center justify-between">
+                                    <PaymentPointerCTA id={paymentPointer.id} status={paymentPointer.status} />
+                                    {/* <div className="mt-4 flex items-center justify-between">
                                         {paymentPointer.status === "NEEDS_GRANT" ? (
-                                            <Button>Request grant</Button>
+                                            <Button onClick={() => requestGrant(paymentPointer.id)}>
+                                                Request grant
+                                            </Button>
                                         ) : null}
                                         <Button>Remove</Button>
-                                    </div>
+                                    </div> */}
                                 </AccordionContent>
                             </AccordionItem>
                         ))
@@ -70,27 +74,72 @@ export const PaymentPointers = () => {
     );
 };
 
-const formSchema = z.object({
-    paymentPointer: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
-    }),
-    keyId: z.string().min(1),
-    privateKey: z.string(),
+const continueSchema = z.object({
+    interactRef: z.string().uuid(),
 });
+
+const PaymentPointerCTA = ({ id, status }: { id: string; status: PaymentPointerStatus }) => {
+    const form = useZodForm({
+        schema: continueSchema,
+    });
+
+    return (
+        <div className="mt-4 space-y-4">
+            {status === "WAITING_FOR_APPROVAL" ? (
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(data => {
+                            continueGrant(id, data.interactRef);
+                            form.reset();
+                        })}
+                    >
+                        <div className="flex items-center justify-between space-x-4">
+                            <FormField
+                                control={form.control}
+                                name="interactRef"
+                                render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                        <FormControl>
+                                            <Input {...field} placeholder="Interaction reference" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button>Continue</Button>
+                        </div>
+                    </form>
+                    <Separator className="mt-4" />
+                </Form>
+            ) : null}
+            <div className="flex items-center">
+                {status === "NEEDS_GRANT" || status === "WAITING_FOR_APPROVAL" ? (
+                    <Button onClick={() => requestGrant(id)}>Request grant</Button>
+                ) : null}
+                <Button className="ml-auto" onClick={() => send()}>
+                    Send
+                </Button>
+                <Button className="ml-auto">Remove</Button>
+            </div>
+        </div>
+    );
+};
 
 const PaymentPointerBadge = ({ status }: { status: PaymentPointerStatus }) => {
     let color = "text-green-500";
     let text = "Active";
-    console.log(status);
     if (status === "NEEDS_GRANT") {
         color = "text-yellow-500";
         text = "Needs grant";
+    } else if (status === "WAITING_FOR_APPROVAL") {
+        color = "text-violet-500";
+        text = "Waiting for approval";
     }
 
     return (
         <TooltipProvider>
             <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger tabIndex={-1}>
                     <Badge variant="ghost">
                         <Icons.CheckShield className={`h-4 w-4 ${color}`} />
                     </Badge>
@@ -101,14 +150,22 @@ const PaymentPointerBadge = ({ status }: { status: PaymentPointerStatus }) => {
     );
 };
 
+const addPaymentPointerSchema = z.object({
+    paymentPointer: z.string().min(2, {
+        message: "Username must be at least 2 characters.",
+    }),
+    keyId: z.string().min(1),
+    privateKey: z.string(),
+});
+
 const AddPaymentPointerForm = () => {
     const form = useZodForm({
-        schema: formSchema,
+        schema: addPaymentPointerSchema,
     });
 
     return (
         <Form {...form}>
-            <h1 className="etext-center mb-5 text-sm font-medium uppercase antialiased">Add payment pointer</h1>
+            <h1 className="mb-5 text-center text-sm font-medium uppercase antialiased">Add payment pointer</h1>
             <form
                 onSubmit={form.handleSubmit(data => {
                     addPaymentPointer(data);
@@ -147,14 +204,15 @@ const AddPaymentPointerForm = () => {
                     name="privateKey"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Private key</FormLabel>
+                            <FormLabel>Bio</FormLabel>
                             <FormControl>
-                                <Input {...field} />
+                                <Textarea className="resize-none" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
                 <Button type="submit" className="w-full">
                     Add
                 </Button>

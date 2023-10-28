@@ -1,6 +1,7 @@
 export const PaymentPointerStatus = {
     ACTIVE: "ACTIVE",
     NEEDS_GRANT: "NEEDS_GRANT",
+    WAITING_FOR_APPROVAL: "WAITING_FOR_APPROVAL",
 } as const;
 export type PaymentPointerStatus = (typeof PaymentPointerStatus)[keyof typeof PaymentPointerStatus];
 
@@ -11,11 +12,17 @@ export interface PaymentPointer {
     assetScale: number;
     status: PaymentPointerStatus;
     publicName?: string;
+    continueUri?: string;
+    continueToken?: string;
 }
 
 export const WebviewAction = {
     PAYMENT_POINTER_LIST: "PAYMENT_POINTER_LIST",
     PAYMENT_POINTER_ADD: "PAYMENT_POINTER_ADD",
+    REQUEST_GRANT: "REQUEST_GRANT",
+    CONTINUE_GRANT: "CONTINUE_GRANT",
+
+    SEND: "SEND",
 } as const;
 export type WebviewAction = (typeof WebviewAction)[keyof typeof WebviewAction];
 
@@ -25,9 +32,21 @@ export interface PaymentPointerAddPayload {
     privateKey: string;
 }
 
+export interface RequestGrantPayload {
+    paymentPointer: string;
+}
+
+export interface ContinueGrantPayload {
+    paymentPointer: string;
+    interactRef: string;
+}
+
 export interface WebviewActionPayload {
     [WebviewAction.PAYMENT_POINTER_LIST]: undefined;
     [WebviewAction.PAYMENT_POINTER_ADD]: PaymentPointerAddPayload;
+    [WebviewAction.REQUEST_GRANT]: RequestGrantPayload;
+    [WebviewAction.CONTINUE_GRANT]: ContinueGrantPayload;
+    [WebviewAction.SEND]: undefined;
 }
 
 export type WebviewMessageHKT<TAction extends WebviewAction, TPayload = undefined> = TPayload extends undefined
