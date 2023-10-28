@@ -1,16 +1,16 @@
-import { PaymentPointer } from "#shared/types";
+import { WalletAddress } from "#shared/types";
 import { proxy } from "valtio";
 
 interface State {
-    paymentPointers: PaymentPointer[] | null;
+    walletAddresses: WalletAddress[] | null;
 }
 
 const initialState = {
-    paymentPointers: null,
+    walletAddresses: null,
 } satisfies State;
 
 export const state = proxy<State>(initialState);
 
-export function setPaymentPointers(data: PaymentPointer[]) {
-    state.paymentPointers = data;
+export function setWalletAddresses(data: WalletAddress[]) {
+    state.walletAddresses = data;
 }

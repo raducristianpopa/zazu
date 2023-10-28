@@ -1,34 +1,34 @@
-import { ExtensionAction, ExtensionMessage, PaymentPointerAddPayload } from "#shared/types";
-import { setPaymentPointers } from "./state";
+import { ExtensionMessage, WalletAddressAddPayload } from "#shared/types";
+import { setWalletAddresses } from "./state";
 import { vscode } from "./vscode";
 
-export function listPaymentPointers(): void {
+export function listWalletAddresses(): void {
     vscode.postMessage({
-        action: "PAYMENT_POINTER_LIST",
+        action: "WALLET_ADDRESS_LIST",
     });
 }
 
-export function addPaymentPointer(payload: PaymentPointerAddPayload): void {
+export function addWalletAddress(payload: WalletAddressAddPayload): void {
     vscode.postMessage({
-        action: "PAYMENT_POINTER_ADD",
+        action: "WALLET_ADDRESS_ADD",
         payload,
     });
 }
 
-export function requestGrant(paymentPointer: string): void {
+export function requestGrant(walletAddressUrl: string): void {
     vscode.postMessage({
         action: "REQUEST_GRANT",
         payload: {
-            paymentPointer,
+            walletAddressUrl,
         },
     });
 }
 
-export function continueGrant(paymentPointer: string, interactRef: string): void {
+export function continueGrant(walletAddressUrl: string, interactRef: string): void {
     vscode.postMessage({
         action: "CONTINUE_GRANT",
         payload: {
-            paymentPointer,
+            walletAddressUrl,
             interactRef,
         },
     });
@@ -49,7 +49,7 @@ export function messageHandler(event: MessageEvent<ExtensionMessage>) {
     console.groupEnd();
 
     switch (action) {
-        case ExtensionAction.PAYMENT_POINTER_LIST:
-            setPaymentPointers(payload);
+        case "WALLET_ADDRESS_LIST":
+            setWalletAddresses(payload);
     }
 }

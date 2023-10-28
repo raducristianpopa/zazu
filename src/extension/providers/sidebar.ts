@@ -12,11 +12,11 @@ import {
     WebviewViewResolveContext,
     window,
 } from "vscode";
-import { PaymentPointerManager } from "#extension/managers/payment-pointer";
+import { WalletAddressManager } from "#extension/managers/wallet-address";
 
 interface SidebarProviderDeps {
     extensionUri: Uri;
-    paymentPointerManager: PaymentPointerManager;
+    walletAddressManager: WalletAddressManager;
     secretStorage: SecretStorage;
 }
 
@@ -24,12 +24,12 @@ export class SidebarProvider implements WebviewViewProvider {
     public static readonly viewType = "zazu-sidebar-view";
 
     private readonly extensionUri: Uri;
-    private paymentPointerManager: PaymentPointerManager;
+    private walletAddressManager: WalletAddressManager;
     private secretStorage: SecretStorage;
 
     constructor(deps: SidebarProviderDeps) {
         this.extensionUri = deps.extensionUri;
-        this.paymentPointerManager = deps.paymentPointerManager;
+        this.walletAddressManager = deps.walletAddressManager;
         this.secretStorage = deps.secretStorage;
     }
 
@@ -48,8 +48,8 @@ export class SidebarProvider implements WebviewViewProvider {
     }
 
     private getWebviewContent(webview: Webview, extensionUri: Uri) {
-        const scriptUri = uri(webview, extensionUri, ["dist", "webviews", "main.js"]);
-        const stylesUri = uri(webview, extensionUri, ["dist", "webviews", "main.css"]);
+        const scriptUri = uri(webview, extensionUri, ["dist", "webview", "main.js"]);
+        const stylesUri = uri(webview, extensionUri, ["dist", "webview", "main.css"]);
         const n = nonce();
 
         return /*html*/ `
@@ -74,40 +74,40 @@ export class SidebarProvider implements WebviewViewProvider {
     private setWebviewMessageListener(webviewView: WebviewView) {
         webviewView.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
             switch (message.action) {
-                case "PAYMENT_POINTER_LIST":
+                case "WALLET_ADDRESS_LIST":
                     this.postMessage(webviewView.webview, {
-                        action: "PAYMENT_POINTER_LIST",
-                        payload: this.paymentPointerManager.list(),
+                        action: "WALLET_ADDRESS_LIST",
+                        payload: this.walletAddressManager.list(),
                     });
                     break;
-                case "PAYMENT_POINTER_ADD":
-                    const payload = await this.paymentPointerManager.set(message.payload);
+                case "WALLET_ADDRESS_ADD":
+                    const payload = await this.walletAddressManager.set(message.payload);
                     this.postMessage(webviewView.webview, {
-                        action: "PAYMENT_POINTER_LIST",
+                        action: "WALLET_ADDRESS_LIST",
                         payload,
                     });
-                    window.showInformationMessage(`Payment pointer "${message.payload.paymentPointer}" was added.`);
+                    window.showInformationMessage(`Wallet address "${message.payload.walletAddressUrl}" was added.`);
                     break;
                 case "REQUEST_GRANT":
-                    const grant = await this.paymentPointerManager.grant(message.payload.paymentPointer);
+                    const grant = await this.walletAddressManager.grant(message.payload.walletAddressUrl);
                     env.openExternal(Uri.parse(grant.interact.redirect));
                     this.postMessage(webviewView.webview, {
-                        action: "PAYMENT_POINTER_LIST",
-                        payload: this.paymentPointerManager.list(),
+                        action: "WALLET_ADDRESS_LIST",
+                        payload: this.walletAddressManager.list(),
                     });
                     break;
                 case "CONTINUE_GRANT":
-                    await this.paymentPointerManager.continue(
-                        message.payload.paymentPointer,
+                    await this.walletAddressManager.continue(
+                        message.payload.walletAddressUrl,
                         message.payload.interactRef,
                     );
                     this.postMessage(webviewView.webview, {
-                        action: "PAYMENT_POINTER_LIST",
-                        payload: this.paymentPointerManager.list(),
+                        action: "WALLET_ADDRESS_LIST",
+                        payload: this.walletAddressManager.list(),
                     });
                     break;
                 case "SEND":
-                    await this.paymentPointerManager.send();
+                    console.log("Sending ... not implemented");
                     break;
             }
         });

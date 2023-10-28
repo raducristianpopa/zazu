@@ -1,6 +1,5 @@
-import { ExtensionAction, ExtensionMessage, WebviewMessage } from "#shared/types";
+import { WebviewMessage } from "#shared/types";
 import type { WebviewApi } from "vscode-webview";
-import { setPaymentPointers } from "./state";
 
 class VSCodeAPIWrapper {
     private readonly vsCodeApi: WebviewApi<unknown> | undefined;

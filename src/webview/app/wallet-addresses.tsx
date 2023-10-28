@@ -1,7 +1,7 @@
-import { PaymentPointerStatus } from "#shared/types";
-import { usePaymentPointers } from "#webview/lib/hooks/use-payment-pointers";
+import { WalletAddressStatus } from "#shared/types";
+import { useWalletAddresses } from "#webview/lib/hooks/use-wallet-addresses";
 import { useZodForm } from "#webview/lib/hooks/use-zod-form";
-import { addPaymentPointer, continueGrant, requestGrant, send } from "#webview/lib/messages";
+import { addWalletAddress, continueGrant, requestGrant, send } from "#webview/lib/messages";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "#webview/ui/accordion";
 import { Badge } from "#webview/ui/badge";
 import { Button } from "#webview/ui/button";
@@ -14,10 +14,10 @@ import { Textarea } from "#webview/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "#webview/ui/tooltip";
 import { z } from "zod";
 
-export const PaymentPointers = () => {
-    const paymentPointers = usePaymentPointers();
+export const WalletAddresses = () => {
+    const walletAddresses = useWalletAddresses();
 
-    if (paymentPointers === null) {
+    if (walletAddresses === null) {
         return <>Loading...</>;
     }
 
@@ -25,43 +25,38 @@ export const PaymentPointers = () => {
         <>
             <ScrollArea className="h-[310px]">
                 <Accordion type="single" collapsible className="w-full">
-                    {paymentPointers.length === 0 ? (
-                        <p className="mt-5 text-center font-medium antialiased">No payment pointers found.</p>
+                    {walletAddresses.length === 0 ? (
+                        <p className="mt-5 text-center font-medium antialiased">No wallet addresses found.</p>
                     ) : (
-                        paymentPointers.map(paymentPointer => (
-                            <AccordionItem key={paymentPointer.id} value={paymentPointer.id}>
+                        walletAddresses.map(walletAddress => (
+                            <AccordionItem key={walletAddress.id} value={walletAddress.id}>
                                 <AccordionTrigger>
                                     <div className="flex items-center space-x-2">
-                                        <PaymentPointerBadge status={paymentPointer.status} />
-                                        <span className="text-sm">{paymentPointer.id}</span>
+                                        <WalletAddressBadge status={walletAddress.status} />
+                                        <span className="text-sm">{walletAddress.id}</span>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="px-4">
                                     <div className="flex items-center space-x-1">
                                         <p className="font-semibold">URL:</p>
-                                        <p>{paymentPointer.id}</p>
+                                        <p>{walletAddress.id}</p>
                                     </div>
                                     <div className="flex items-center space-x-1">
                                         <p className="font-semibold">Auth server:</p>
-                                        <p>{paymentPointer.authServer}</p>
+                                        <p>{walletAddress.authServer}</p>
                                     </div>
                                     <div className="flex items-center space-x-1">
                                         <p className="font-semibold">Asset code:</p>
-                                        <p>{paymentPointer.assetCode}</p>
+                                        <p>{walletAddress.assetCode}</p>
                                     </div>
                                     <div className="flex items-center space-x-1">
                                         <p className="font-semibold">Asset scale:</p>
-                                        <p>{paymentPointer.assetScale}</p>
+                                        <p>{walletAddress.assetScale}</p>
                                     </div>
-                                    <PaymentPointerCTA id={paymentPointer.id} status={paymentPointer.status} />
-                                    {/* <div className="mt-4 flex items-center justify-between">
-                                        {paymentPointer.status === "NEEDS_GRANT" ? (
-                                            <Button onClick={() => requestGrant(paymentPointer.id)}>
-                                                Request grant
-                                            </Button>
-                                        ) : null}
-                                        <Button>Remove</Button>
-                                    </div> */}
+                                    <WalletAddressCTA
+                                        walletAddressUrl={walletAddress.id}
+                                        status={walletAddress.status}
+                                    />
                                 </AccordionContent>
                             </AccordionItem>
                         ))
@@ -69,7 +64,7 @@ export const PaymentPointers = () => {
                 </Accordion>
             </ScrollArea>
             <Separator className="my-5" />
-            <AddPaymentPointerForm />
+            <AddWalletAddressForm />
         </>
     );
 };
@@ -78,7 +73,7 @@ const continueSchema = z.object({
     interactRef: z.string().uuid(),
 });
 
-const PaymentPointerCTA = ({ id, status }: { id: string; status: PaymentPointerStatus }) => {
+const WalletAddressCTA = ({ walletAddressUrl, status }: { walletAddressUrl: string; status: WalletAddressStatus }) => {
     const form = useZodForm({
         schema: continueSchema,
     });
@@ -89,7 +84,7 @@ const PaymentPointerCTA = ({ id, status }: { id: string; status: PaymentPointerS
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(data => {
-                            continueGrant(id, data.interactRef);
+                            continueGrant(walletAddressUrl, data.interactRef);
                             form.reset();
                         })}
                     >
@@ -114,7 +109,7 @@ const PaymentPointerCTA = ({ id, status }: { id: string; status: PaymentPointerS
             ) : null}
             <div className="flex items-center">
                 {status === "NEEDS_GRANT" || status === "WAITING_FOR_APPROVAL" ? (
-                    <Button onClick={() => requestGrant(id)}>Request grant</Button>
+                    <Button onClick={() => requestGrant(walletAddressUrl)}>Request grant</Button>
                 ) : null}
                 <Button className="ml-auto" onClick={() => send()}>
                     Send
@@ -125,7 +120,7 @@ const PaymentPointerCTA = ({ id, status }: { id: string; status: PaymentPointerS
     );
 };
 
-const PaymentPointerBadge = ({ status }: { status: PaymentPointerStatus }) => {
+const WalletAddressBadge = ({ status }: { status: WalletAddressStatus }) => {
     let color = "text-green-500";
     let text = "Active";
     if (status === "NEEDS_GRANT") {
@@ -150,35 +145,35 @@ const PaymentPointerBadge = ({ status }: { status: PaymentPointerStatus }) => {
     );
 };
 
-const addPaymentPointerSchema = z.object({
-    paymentPointer: z.string().min(2, {
+const addWalletAddressSchema = z.object({
+    walletAddressUrl: z.string().min(2, {
         message: "Username must be at least 2 characters.",
     }),
     keyId: z.string().min(1),
     privateKey: z.string(),
 });
 
-const AddPaymentPointerForm = () => {
+const AddWalletAddressForm = () => {
     const form = useZodForm({
-        schema: addPaymentPointerSchema,
+        schema: addWalletAddressSchema,
     });
 
     return (
         <Form {...form}>
-            <h1 className="mb-5 text-center text-sm font-medium uppercase antialiased">Add payment pointer</h1>
+            <h1 className="mb-5 text-center text-sm font-medium uppercase antialiased">Add wallet address</h1>
             <form
                 onSubmit={form.handleSubmit(data => {
-                    addPaymentPointer(data);
+                    addWalletAddress(data);
                     form.reset();
                 })}
                 className="w-full space-y-6"
             >
                 <FormField
                     control={form.control}
-                    name="paymentPointer"
+                    name="walletAddressUrl"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Payment pointer</FormLabel>
+                            <FormLabel>Wallet address</FormLabel>
                             <FormControl>
                                 <Input {...field} />
                             </FormControl>

@@ -1,24 +1,24 @@
-export const PaymentPointerStatus = {
+export const WalletAddressStatus = {
     ACTIVE: "ACTIVE",
     NEEDS_GRANT: "NEEDS_GRANT",
     WAITING_FOR_APPROVAL: "WAITING_FOR_APPROVAL",
 } as const;
-export type PaymentPointerStatus = (typeof PaymentPointerStatus)[keyof typeof PaymentPointerStatus];
+export type WalletAddressStatus = (typeof WalletAddressStatus)[keyof typeof WalletAddressStatus];
 
-export interface PaymentPointer {
+export interface WalletAddress {
     id: string;
     authServer: string;
     assetCode: string;
     assetScale: number;
-    status: PaymentPointerStatus;
+    status: WalletAddressStatus;
     publicName?: string;
     continueUri?: string;
     continueToken?: string;
 }
 
 export const WebviewAction = {
-    PAYMENT_POINTER_LIST: "PAYMENT_POINTER_LIST",
-    PAYMENT_POINTER_ADD: "PAYMENT_POINTER_ADD",
+    WALLET_ADDRESS_LIST: "WALLET_ADDRESS_LIST",
+    WALLET_ADDRESS_ADD: "WALLET_ADDRESS_ADD",
     REQUEST_GRANT: "REQUEST_GRANT",
     CONTINUE_GRANT: "CONTINUE_GRANT",
 
@@ -26,24 +26,24 @@ export const WebviewAction = {
 } as const;
 export type WebviewAction = (typeof WebviewAction)[keyof typeof WebviewAction];
 
-export interface PaymentPointerAddPayload {
-    paymentPointer: string;
+export interface WalletAddressAddPayload {
+    walletAddressUrl: string;
     keyId: string;
     privateKey: string;
 }
 
 export interface RequestGrantPayload {
-    paymentPointer: string;
+    walletAddressUrl: string;
 }
 
 export interface ContinueGrantPayload {
-    paymentPointer: string;
+    walletAddressUrl: string;
     interactRef: string;
 }
 
 export interface WebviewActionPayload {
-    [WebviewAction.PAYMENT_POINTER_LIST]: undefined;
-    [WebviewAction.PAYMENT_POINTER_ADD]: PaymentPointerAddPayload;
+    [WebviewAction.WALLET_ADDRESS_LIST]: undefined;
+    [WebviewAction.WALLET_ADDRESS_ADD]: WalletAddressAddPayload;
     [WebviewAction.REQUEST_GRANT]: RequestGrantPayload;
     [WebviewAction.CONTINUE_GRANT]: ContinueGrantPayload;
     [WebviewAction.SEND]: undefined;
@@ -58,12 +58,12 @@ export type WebviewMessage = {
 }[WebviewAction];
 
 export const ExtensionAction = {
-    PAYMENT_POINTER_LIST: "PAYMENT_POINTER_LIST",
+    WALLET_ADDRESS_LIST: "WALLET_ADDRESS_LIST",
 } as const;
 export type ExtensionAction = (typeof ExtensionAction)[keyof typeof ExtensionAction];
 
 export interface ExtensionActionPayload {
-    [ExtensionAction.PAYMENT_POINTER_LIST]: PaymentPointer[];
+    [ExtensionAction.WALLET_ADDRESS_LIST]: WalletAddress[];
 }
 
 export type ExtensionMessageHKT<TAction extends ExtensionAction, TPayload = undefined> = TPayload extends undefined
