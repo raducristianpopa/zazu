@@ -1,4 +1,4 @@
-import { ExtensionAction, ExtensionMessage, PaymentPointerAddPayload } from "#types";
+import { ExtensionAction, ExtensionMessage, PaymentPointerAddPayload } from "#shared/types";
 import { setPaymentPointers } from "./state";
 import { vscode } from "./vscode";
 

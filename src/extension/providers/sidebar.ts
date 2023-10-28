@@ -1,5 +1,5 @@
-import { nonce, uri } from "#utils";
-import { ExtensionMessage, WebviewMessage } from "#types";
+import { nonce, uri } from "#extension/utils";
+import { ExtensionMessage, WebviewMessage } from "#shared/types";
 import {
     env,
     commands,
@@ -12,7 +12,7 @@ import {
     WebviewViewResolveContext,
     window,
 } from "vscode";
-import { PaymentPointerManager } from "#managers/payment-pointer";
+import { PaymentPointerManager } from "#extension/managers/payment-pointer";
 
 interface SidebarProviderDeps {
     extensionUri: Uri;

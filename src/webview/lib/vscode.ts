@@ -1,4 +1,4 @@
-import { ExtensionAction, ExtensionMessage, WebviewMessage } from "#types";
+import { ExtensionAction, ExtensionMessage, WebviewMessage } from "#shared/types";
 import type { WebviewApi } from "vscode-webview";
 import { setPaymentPointers } from "./state";
 

@@ -12,7 +12,7 @@ async function run() {
     await build({
         plugins: [react()],
         build: {
-            outDir: "./dist/webviews",
+            outDir: "./dist/webview",
             rollupOptions: {
                 input: main,
                 output: {

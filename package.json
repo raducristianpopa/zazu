@@ -19,7 +19,7 @@
     },
     "icon": "media/zazu.png",
     "activationEvents": [],
-    "main": "./dist/extension.js",
+    "main": "./dist/index.js",
     "contributes": {
         "commands": [
             {

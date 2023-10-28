@@ -1,4 +1,4 @@
-import { PaymentPointer } from "#types";
+import { PaymentPointer } from "#shared/types";
 import { proxy } from "valtio";
 
 interface State {

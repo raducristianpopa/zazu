@@ -1,4 +1,4 @@
-import { PaymentPointerStatus } from "#types";
+import { PaymentPointerStatus } from "#shared/types";
 import { usePaymentPointers } from "#webview/lib/hooks/use-payment-pointers";
 import { useZodForm } from "#webview/lib/hooks/use-zod-form";
 import { addPaymentPointer, continueGrant, requestGrant, send } from "#webview/lib/messages";
