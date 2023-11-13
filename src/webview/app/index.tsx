@@ -3,6 +3,7 @@ import { Outlet, RouteObject, RouterProvider, createMemoryRouter } from "react-r
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#webview/ui/tabs";
 import { WalletAddresses } from "./wallet-addresses";
 import { messageHandler } from "#webview/lib/messages";
+import { WalletAddressDialog } from "./wallet-addresses/wallet-address-dialog";
 
 const Wrapper = () => {
     useEventListener("message", messageHandler);
@@ -12,16 +13,21 @@ const Wrapper = () => {
 
 const Index = () => {
     return (
-        <Tabs defaultValue="wallet-addresses">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="wallet-addresses">Wallet addresses</TabsTrigger>
-                <TabsTrigger value="payments">Payments</TabsTrigger>
-            </TabsList>
-            <TabsContent value="wallet-addresses">
-                <WalletAddresses />
-            </TabsContent>
-            <TabsContent value="payments">Coming soon...</TabsContent>
-        </Tabs>
+        <>
+            <div className="px-5">
+                <Tabs defaultValue="wallet-addresses">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="wallet-addresses">Wallet addresses</TabsTrigger>
+                        <TabsTrigger value="payments">Payments</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="wallet-addresses">
+                        <WalletAddresses />
+                    </TabsContent>
+                    <TabsContent value="payments">Coming soon...</TabsContent>
+                </Tabs>
+            </div>
+            <WalletAddressDialog />
+        </>
     );
 };
 

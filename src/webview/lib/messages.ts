@@ -1,6 +1,7 @@
-import { ExtensionMessage, WalletAddressAddPayload } from "#shared/types";
+import { ExtensionMessage, WalletAddressAddPayload, WebviewMessage } from "#shared/types";
+import { WebviewApi } from "vscode-webview";
 import { setWalletAddresses } from "./state";
-import { vscode } from "./vscode";
+import { VSCodeAPIWrapper, vscode } from "./vscode";
 
 export function listWalletAddresses(): void {
     vscode.postMessage({
@@ -51,5 +52,38 @@ export function messageHandler(event: MessageEvent<ExtensionMessage>) {
     switch (action) {
         case "WALLET_ADDRESS_LIST":
             setWalletAddresses(payload);
+    }
+}
+
+export class Messages {
+    private static vscode: WebviewApi<unknown>;
+    private static promises: Map<string, any> = new Map<string, any>();
+
+    public static get api(): WebviewApi<unknown> {
+        if (typeof acquireVsCodeApi !== "function") {
+            throw new Error(
+                `Could not get VSCode API. "acquireVsCodeApi" is not function, received: ${typeof acquireVsCodeApi}.`,
+            );
+        }
+
+        if (!vscode) {
+            Messages.vscode = acquireVsCodeApi();
+        }
+
+        return Messages.vscode;
+    }
+
+    static send(message: WebviewMessage) {
+        this.api.postMessage(message);
+    }
+
+    static async post(message: WebviewMessage, key?: string) {
+        if (key) {
+            this.promises.set(key, null);
+        }
+
+        return new Promise((res, rej) => {
+        })
+        this.api.postMessage({ ...message, key });
     }
 }
