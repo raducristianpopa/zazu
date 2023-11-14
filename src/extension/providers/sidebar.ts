@@ -1,4 +1,4 @@
-import { nonce, uri } from "#extension/utils";
+import { uri } from "#extension/utils";
 import { ExtensionMessage, WebviewMessage } from "#shared/types";
 import {
     env,
@@ -13,6 +13,7 @@ import {
     window,
 } from "vscode";
 import { WalletAddressManager } from "#extension/managers/wallet-address";
+import { nonce } from "#shared/utils";
 
 interface SidebarProviderDeps {
     extensionUri: Uri;
@@ -107,6 +108,14 @@ export class SidebarProvider implements WebviewViewProvider {
                     });
                     break;
                 case "SEND":
+                    this.postMessage(webviewView.webview, {
+                        //@ts-ignore
+                        action: "TEST",
+                        //@ts-ignore
+                        payload: { test: "string" },
+                        id: message.id,
+                    });
+
                     console.log("Sending ... not implemented");
                     break;
             }

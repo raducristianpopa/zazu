@@ -1,23 +1,23 @@
-import { ExtensionMessage, WalletAddressAddPayload, WebviewMessage } from "#shared/types";
+import { ExtensionMessage, WalletAddressAddPayload, WebviewActionPayload, WebviewMessage } from "#shared/types";
 import { WebviewApi } from "vscode-webview";
 import { setWalletAddresses } from "./state";
-import { VSCodeAPIWrapper, vscode } from "./vscode";
+import { nonce } from "#shared/utils";
 
 export function listWalletAddresses(): void {
-    vscode.postMessage({
+    Messages.send({
         action: "WALLET_ADDRESS_LIST",
     });
 }
 
 export function addWalletAddress(payload: WalletAddressAddPayload): void {
-    vscode.postMessage({
+    Messages.send({
         action: "WALLET_ADDRESS_ADD",
         payload,
     });
 }
 
 export function requestGrant(walletAddressUrl: string): void {
-    vscode.postMessage({
+    Messages.send({
         action: "REQUEST_GRANT",
         payload: {
             walletAddressUrl,
@@ -26,7 +26,7 @@ export function requestGrant(walletAddressUrl: string): void {
 }
 
 export function continueGrant(walletAddressUrl: string, interactRef: string): void {
-    vscode.postMessage({
+    Messages.send({
         action: "CONTINUE_GRANT",
         payload: {
             walletAddressUrl,
@@ -36,13 +36,22 @@ export function continueGrant(walletAddressUrl: string, interactRef: string): vo
 }
 
 export function send() {
-    vscode.postMessage({
+    Messages.send({
         action: "SEND",
     });
 }
 
 export function messageHandler(event: MessageEvent<ExtensionMessage>) {
-    const { action, payload } = event.data;
+    const { id, action, payload, error } = event.data;
+
+    if (id) {
+        const promise = Messages.promises.get(id);
+        if (promise) {
+            promise.res({ success: !error, payload, error });
+            Messages.promises.delete(id);
+        }
+        return;
+    }
 
     console.group("Received message");
     console.log("Action:", action);
@@ -57,7 +66,11 @@ export function messageHandler(event: MessageEvent<ExtensionMessage>) {
 
 export class Messages {
     private static vscode: WebviewApi<unknown>;
-    private static promises: Map<string, any> = new Map<string, any>();
+    public static promises: Map<string, { res: (_0: any) => void; rej: (_1: any) => void }> = new Map();
+
+    private static mId(): string {
+        return "M_" + nonce();
+    }
 
     public static get api(): WebviewApi<unknown> {
         if (typeof acquireVsCodeApi !== "function") {
@@ -66,24 +79,25 @@ export class Messages {
             );
         }
 
-        if (!vscode) {
-            Messages.vscode = acquireVsCodeApi();
+        if (!this.vscode) {
+            this.vscode = acquireVsCodeApi();
         }
 
-        return Messages.vscode;
+        return this.vscode;
     }
 
-    static send(message: WebviewMessage) {
+    static send(message: WebviewMessage): void {
         this.api.postMessage(message);
     }
 
-    static async post(message: WebviewMessage, key?: string) {
-        if (key) {
-            this.promises.set(key, null);
-        }
-
+    // TODO(@raducristianpopa): it works, but it's not typed
+    static async post<TMessage extends WebviewMessage>(
+        message: TMessage,
+    ): Promise<{ success: boolean; payload: WebviewActionPayload[TMessage["action"]]; error?: string }> {
         return new Promise((res, rej) => {
-        })
-        this.api.postMessage({ ...message, key });
+            message.id = this.mId();
+            this.promises.set(message.id, { res, rej });
+            this.send(message);
+        });
     }
 }

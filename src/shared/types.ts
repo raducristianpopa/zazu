@@ -49,9 +49,9 @@ export interface WebviewActionPayload {
     [WebviewAction.SEND]: undefined;
 }
 
-export type WebviewMessageHKT<TAction extends WebviewAction, TPayload = undefined> = TPayload extends undefined
+export type WebviewMessageHKT<TAction extends WebviewAction, TPayload = undefined> = (TPayload extends undefined
     ? { action: TAction }
-    : { action: TAction; payload: TPayload };
+    : { action: TAction; payload: TPayload }) & { id?: string };
 
 export type WebviewMessage = {
     [K in WebviewAction]: WebviewMessageHKT<K, WebviewActionPayload[K]>;
@@ -66,9 +66,9 @@ export interface ExtensionActionPayload {
     [ExtensionAction.WALLET_ADDRESS_LIST]: WalletAddress[];
 }
 
-export type ExtensionMessageHKT<TAction extends ExtensionAction, TPayload = undefined> = TPayload extends undefined
+export type ExtensionMessageHKT<TAction extends ExtensionAction, TPayload = undefined> = (TPayload extends undefined
     ? { action: TAction }
-    : { action: TAction; payload: TPayload };
+    : { action: TAction; payload: TPayload }) & { id?: string; error?: string };
 
 export type ExtensionMessage = {
     [K in ExtensionAction]: ExtensionMessageHKT<K, ExtensionActionPayload[K]>;

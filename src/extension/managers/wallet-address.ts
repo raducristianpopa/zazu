@@ -1,5 +1,5 @@
 import { WalletAddress } from "#shared/types";
-import { nonce } from "#extension/utils";
+import { nonce } from "#shared/utils";
 import { UnauthenticatedClient, createAuthenticatedClient, isPendingGrant } from "@interledger/open-payments";
 import { Memento, SecretStorage } from "vscode";
 
