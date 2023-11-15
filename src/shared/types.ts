@@ -59,11 +59,14 @@ export type WebviewMessage = {
 
 export const ExtensionAction = {
     WALLET_ADDRESS_LIST: "WALLET_ADDRESS_LIST",
+
+    SEND: "SEND",
 } as const;
 export type ExtensionAction = (typeof ExtensionAction)[keyof typeof ExtensionAction];
 
 export interface ExtensionActionPayload {
     [ExtensionAction.WALLET_ADDRESS_LIST]: WalletAddress[];
+    [ExtensionAction.SEND]: { test: string; a: string; c: boolean; d: () => void };
 }
 
 export type ExtensionMessageHKT<TAction extends ExtensionAction, TPayload = undefined> = (TPayload extends undefined
@@ -73,3 +76,9 @@ export type ExtensionMessageHKT<TAction extends ExtensionAction, TPayload = unde
 export type ExtensionMessage = {
     [K in ExtensionAction]: ExtensionMessageHKT<K, ExtensionActionPayload[K]>;
 }[ExtensionAction];
+
+export interface MessageResponse<TPayload = undefined> {
+    success: boolean;
+    payload: TPayload;
+    error?: string;
+}

@@ -1,4 +1,11 @@
-import { ExtensionMessage, WalletAddressAddPayload, WebviewActionPayload, WebviewMessage } from "#shared/types";
+import {
+    ExtensionAction,
+    ExtensionActionPayload,
+    ExtensionMessage,
+    MessageResponse,
+    WalletAddressAddPayload,
+    WebviewMessage,
+} from "#shared/types";
 import { WebviewApi } from "vscode-webview";
 import { setWalletAddresses } from "./state";
 import { nonce } from "#shared/utils";
@@ -64,9 +71,13 @@ export function messageHandler(event: MessageEvent<ExtensionMessage>) {
     }
 }
 
+type PostResponse<TMessage extends WebviewMessage> = Promise<
+    MessageResponse<TMessage["action"] extends ExtensionAction ? ExtensionActionPayload[TMessage["action"]] : undefined>
+>;
+
 export class Messages {
     private static vscode: WebviewApi<unknown>;
-    public static promises: Map<string, { res: (_0: any) => void; rej: (_1: any) => void }> = new Map();
+    public static promises: Map<string, { res: (_0: any) => void }> = new Map();
 
     private static mId(): string {
         return "M_" + nonce();
@@ -90,13 +101,10 @@ export class Messages {
         this.api.postMessage(message);
     }
 
-    // TODO(@raducristianpopa): it works, but it's not typed
-    static async post<TMessage extends WebviewMessage>(
-        message: TMessage,
-    ): Promise<{ success: boolean; payload: WebviewActionPayload[TMessage["action"]]; error?: string }> {
-        return new Promise((res, rej) => {
+    static async post<TMessage extends WebviewMessage>(message: TMessage): PostResponse<TMessage> {
+        return new Promise(res => {
             message.id = this.mId();
-            this.promises.set(message.id, { res, rej });
+            this.promises.set(message.id, { res });
             this.send(message);
         });
     }

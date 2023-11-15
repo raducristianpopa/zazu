@@ -8,6 +8,9 @@ export function WalletAddresses() {
         async function fetch() {
             const result = await Messages.post({ action: "SEND" });
             console.log(result);
+            if (result) {
+                console.log(result.payload.test);
+            }
         }
         fetch();
     }, []);
